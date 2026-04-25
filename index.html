@@ -3,202 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Quiz - 8 Levels</title>
+    <title>GAME 13</title>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            font-family: 'Arial', sans-serif;
-            background-color: #0f0f0f;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        * { box-sizing: border-box; }
+        
+        html, body {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
             overflow: hidden;
+            background-color: #0a0a0a;
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.4s ease;
         }
+
+        body.is-correct { background-color: #16a34a !important; }
+        body.is-wrong { background-color: #dc2626 !important; }
 
         /* Overlay Iniziale */
         #overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            position: fixed; inset: 0;
+            background: #0a0a0a;
             z-index: 100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
 
         #start-btn {
-            padding: 20px 60px;
-            font-size: 1.8rem;
-            cursor: pointer;
-            border: none;
-            border-radius: 10px;
-            background: #6200ea;
-            color: white;
-            transition: 0.3s;
+            background: #fff; color: #000;
+            border: none; padding: 20px 60px;
+            font-size: 2rem; font-weight: 900;
+            border-radius: 12px; cursor: pointer;
+            letter-spacing: 2px;
         }
-
-        #start-btn:hover { background: #3700b3; transform: scale(1.05); }
 
         /* Container Gioco */
-        #game-wrapper {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: filter 0.5s ease;
+        #game-container {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            width: 100%; height: 100%;
         }
 
-        .blur { filter: blur(25px); }
+        .blurred { filter: blur(40px); }
 
-        .card {
-            background: #1e1e1e;
-            padding: 25px;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 40px;
+            width: 800px;
+            display: flex; flex-direction: column;
+            align-items: center; gap: 20px;
+            position: relative;
+        }
+
+        #game-img {
+            width: 100%; height: 450px;
+            object-fit: contain;
             border-radius: 15px;
-            text-align: center;
-            width: 90%;
-            max-width: 550px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: background-color 0.3s;
-        }
-
-        #game-image {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        #github-link {
-            display: inline-block;
-            margin-bottom: 15px;
-            color: #bb86fc;
-            text-decoration: none;
-            font-size: 0.9rem;
+            background: #000;
         }
 
         input {
-            width: 100%;
-            padding: 15px;
-            border-radius: 8px;
-            border: 2px solid #333;
-            background: #2c2c2c;
-            color: white;
-            font-size: 1.1rem;
-            text-align: center;
+            width: 100%; max-width: 500px;
+            padding: 18px; border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.4);
+            color: #fff; font-size: 1.4rem; text-align: center;
             outline: none;
-            box-sizing: border-box;
         }
 
-        #game-name-display {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-top: 10px;
+        #result-name {
+            font-size: 2.5rem; font-weight: 900;
+            text-transform: uppercase; display: none; margin: 0;
+        }
+
+        /* Scena Finale */
+        #win-screen {
             display: none;
-            color: #03dac6;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            z-index: 50;
         }
 
-        /* Feedback */
-        .correct-bg { background-color: #1b5e20 !important; }
-        .wrong-bg { background-color: #b71c1c !important; }
+        .winning-text {
+            font-size: 5rem;
+            font-weight: 900;
+            color: #fff;
+            animation: rotateOscillate 3s infinite ease-in-out;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+        }
 
-        #round-info {
+        .clue {
+            font-size: 1.5rem;
+            color: #ccc;
+            background: rgba(255,255,255,0.1);
+            padding: 15px 30px;
+            border-radius: 10px;
+        }
+
+        @keyframes rotateOscillate {
+            0% { transform: translateX(-50px) rotate(-10deg); }
+            50% { transform: translateX(50px) rotate(10deg); }
+            100% { transform: translateX(-50px) rotate(-10deg); }
+        }
+
+        /* Coriandoli */
+        .confetti {
             position: absolute;
-            top: 20px;
-            font-weight: bold;
-            text-transform: uppercase;
+            width: 10px; height: 10px;
+            background-color: #f00;
+            animation: fall 3s linear forwards;
         }
+
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        #gh-link { color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
     <div id="overlay">
+        <h1 style="color: white; font-size: 3rem; margin-bottom: 20px;">GAME 13</h1>
         <button id="start-btn">INIZIA</button>
     </div>
 
-    <div id="game-wrapper" class="blur">
-        <div id="round-info">Round: 1 / 8</div>
-        
-        <div class="card" id="main-card">
-            <a id="github-link" href="INSERISCI_QUI_IL_TUO_LINK_GITHUB_GENERALE" target="_blank">View Project on GitHub</a>
-            <img id="game-image" src="" alt="Quiz Image">
-            <input type="text" id="answer-input" placeholder="Qual è il gioco?" autocomplete="off">
-            <div id="game-name-display"></div>
+    <div id="game-container" class="blurred">
+        <div class="glass-card" id="card">
+            <a id="gh-link" href="https://github.com/TheFisp/GAME-13" target="_blank">GITHUB REPOSITORY</a>
+            
+            <div id="play-area" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 20px;">
+                <img id="game-img" src="" alt="Loading...">
+                <input type="text" id="answer-input" placeholder="Qual è il gioco?" autocomplete="off">
+                <p id="result-name"></p>
+            </div>
+
+            <div id="win-screen">
+                <div class="winning-text">HAI VINTO</div>
+                <div class="clue">Il tuo indizio: $5(x-3)^2 + (x-3)^4 = 0$</div>
+            </div>
         </div>
     </div>
 
     <script>
         const gameData = [
-            { answer: "minecraft", img: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065745.png", originalImg: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065755.png" },
-            { answer: "minecraft", img: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20070141.png", originalImg: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20070149.png" },
-            { answer: "elden ring", img: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065839.png", originalImg: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065844.png" },
-            { answer: "stardew valley", img: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065859.png", originalImg: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065910.png" },
-            { answer: "little nightmares", img: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065922.png", originalImg: "LINK_FOTO_ORIGINALE_5" },
-            { answer: "little nightmares 2", img: "LINK_FOTO_6", originalImg: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065929.png" },
-            { answer: "undertale", img: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20070019.png", originalImg: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20070029.png" },
-            { answer: "terraria", img: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065812.png", originalImg: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065818.png" }
+            { name: "Minecraft", q: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065745.png?raw=true", a: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065755.png?raw=true" },
+            { name: "Minecraft", q: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20070141.png?raw=true", a: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20070149.png?raw=true" },
+            { name: "Terraria", q: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065812.png?raw=true", a: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065818.png?raw=true" },
+            { name: "Stardew Valley", q: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065839.png?raw=true", a: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065844.png?raw=true" },
+            { name: "Little Nightmares", q: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065859.png?raw=true", a: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065910.png?raw=true" },
+            { name: "Little Nightmares 2", q: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065922.png?raw=true", a: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20065929.png?raw=true" },
+            { name: "Undertale", q: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20074238.png?raw=true", a: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20074005.png?raw=true" },
+            { name: "Elden Ring", q: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20070205.png?raw=true", a: "https://github.com/TheFisp/GAME-13/blob/main/Screenshot%202026-04-25%20070211.png?raw=true" }
         ];
 
-        let currentRound = 0;
-        const overlay = document.getElementById('overlay');
-        const wrapper = document.getElementById('game-wrapper');
-        const imgEl = document.getElementById('game-image');
-        const inputEl = document.getElementById('answer-input');
-        const nameEl = document.getElementById('game-name-display');
-        const cardEl = document.getElementById('main-card');
-        const roundEl = document.getElementById('round-info');
+        let step = 0;
+        const body = document.body;
+        const input = document.getElementById('answer-input');
+        const img = document.getElementById('game-img');
+        const resName = document.getElementById('result-name');
+        const playArea = document.getElementById('play-area');
+        const winScreen = document.getElementById('win-screen');
 
         document.getElementById('start-btn').onclick = () => {
-            overlay.style.display = 'none';
-            wrapper.classList.remove('blur');
-            loadLevel();
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('game-container').classList.remove('blurred');
+            loadNext();
         };
 
-        function loadLevel() {
-            if (currentRound < gameData.length) {
-                const data = gameData[currentRound];
-                imgEl.src = data.img;
-                roundEl.innerText = `Round: ${currentRound + 1} / 8`;
-                inputEl.value = "";
-                inputEl.style.display = "block";
-                nameEl.style.display = "none";
-                cardEl.classList.remove('correct-bg', 'wrong-bg');
-                inputEl.focus();
-            } else {
-                alert("Complimenti! Hai finito il quiz.");
-                location.reload();
+        function loadNext() {
+            if (step >= gameData.length) {
+                showWin();
+                return;
             }
+            body.className = "";
+            resName.style.display = "none";
+            input.style.display = "block";
+            input.value = "";
+            img.src = gameData[step].q;
+            input.focus();
         }
 
-        inputEl.onkeypress = (e) => {
+        function showWin() {
+            playArea.style.display = "none";
+            winScreen.style.display = "flex";
+            body.className = "";
+            setInterval(createConfetti, 100);
+        }
+
+        function createConfetti() {
+            const c = document.createElement('div');
+            c.className = 'confetti';
+            c.style.left = Math.random() * 100 + 'vw';
+            c.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
+            c.style.top = '-10px';
+            document.body.appendChild(c);
+            setTimeout(() => c.remove(), 3000);
+        }
+
+        input.onkeypress = (e) => {
             if (e.key === 'Enter') {
-                const guess = inputEl.value.toLowerCase().trim();
-                const correct = gameData[currentRound].answer.toLowerCase();
+                const val = input.value.toLowerCase().trim();
+                const correct = gameData[step].name.toLowerCase();
 
-                if (guess === correct) {
-                    // RISPOSTA CORRETTA
-                    cardEl.classList.add('correct-bg');
-                    imgEl.src = gameData[currentRound].originalImg; // Mostra foto originale
-                    nameEl.innerText = gameData[currentRound].answer.toUpperCase(); // Mostra nome
-                    nameEl.style.display = "block";
-                    inputEl.style.display = "none";
-
-                    setTimeout(() => {
-                        currentRound++;
-                        loadLevel();
-                    }, 2500); // Aspetta 2.5 secondi prima del prossimo round
+                if (val === correct) {
+                    body.className = "is-correct";
+                    img.src = gameData[step].a;
+                    resName.innerText = gameData[step].name;
+                    resName.style.display = "block";
+                    input.style.display = "none";
+                    setTimeout(() => { step++; loadNext(); }, 2500);
                 } else {
-                    // RISPOSTA SBAGLIATA
-                    cardEl.classList.add('wrong-bg');
-                    inputEl.value = "";
-                    setTimeout(() => {
-                        cardEl.classList.remove('wrong-bg');
-                    }, 600);
+                    body.className = "is-wrong";
+                    input.value = "";
+                    setTimeout(() => body.className = "", 600);
                 }
             }
         };
